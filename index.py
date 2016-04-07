@@ -9,9 +9,15 @@ from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 
+stop_list = stopwords.words('english')
+stemmer = PorterStemmer()
+
 def build_index(directory_doc, dict_file, postings_file):
 
 	count = 1
+
+	dictionary_title = {}
+	dictionary_abstract = {}
 
 	for filename in os.listdir(directory_doc):
 		count += 1
@@ -21,24 +27,69 @@ def build_index(directory_doc, dict_file, postings_file):
 		for child in root:
 			if child.attrib['name'] == 'Title':
 				title = child.text.strip().lower()
-				index_title(title, postings_file)
+				dictionary_title = index_title(filename, title, dictionary_title)
 			if child.attrib['name'] == 'Abstract':
 				abstract = child.text.strip().lower()
-				index_abstract(abstract, postings_file)
+				dictionary_abstract = index_abstract(filename, abstract, dictionary_abstract)
 
 		#print count
 
-def index_title(title, postings_file):
+		p = open(postings_file, 'w')
+		# p.write(str(dictionary_title))
 
-	p = open(postings_file, 'w')
+		for word in dictionary_title:
+			doc_freq = len(dictionary_title[word])
+			p.write(word + '.title ' + str(doc_freq) + ' ')
+			for filename in dictionary_title[word]:
+				term_freq = dictionary_title[word][filename]
+				p.write('(' + filename + ', ' + str(term_freq) + ') ')
+			p.write('\n')
+
+
+		for word in dictionary_abstract:
+			doc_freq = len(dictionary_abstract[word])
+			p.write(word + '.title ' + str(doc_freq) + ' ')
+			for filename in dictionary_abstract[word]:
+				term_freq = dictionary_abstract[word][filename]
+				p.write('(' + filename + ', ' + str(term_freq) + ') ')
+			p.write('\n')
+
+
+def index_title(filename, title, dictionary_title):
+	
+	filename = filename.replace('.xml', '')
 
 	tokens = tokenize(title)
+	tokens = [token for token in tokens if token not in stop_list]
 	for token in tokens:
-		p.write(token + '.title' + '\n')
-		# william.title [doc_freq] [patent_no., term_freq] [patent_no.] 
+		if token in dictionary_title and filename in dictionary_title[token]:
+			print 'yes'
+			dictionary_title[token][filename] += 1
+		elif token in dictionary_title and not filename in dictionary_title[token]:
+			dictionary_title[token][filename] = 1
+		else:
+			dictionary_title[token] = {}
+			dictionary_title[token][filename] = 1
+	
+	return dictionary_title
 
-def index_abstract(abstract, postings_file):
-	return 0
+def index_abstract(filename, abstract, dictionary_abstract):
+	
+	filename = filename.replace('.xml', '')
+
+	tokens = tokenize(title)
+	tokens = [token for token in tokens if token not in stop_list]
+	for token in tokens:
+		if token in dictionary_title and filename in dictionary_title[token]:
+			print 'yes'
+			dictionary_title[token][filename] += 1
+		elif token in dictionary_title and not filename in dictionary_title[token]:
+			dictionary_title[token][filename] = 1
+		else:
+			dictionary_title[token] = {}
+			dictionary_title[token][filename] = 1
+	
+	return dictionary_title
 
 def tokenize(text):
 
