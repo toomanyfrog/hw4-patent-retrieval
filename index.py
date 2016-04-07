@@ -28,16 +28,16 @@ def build_index(directory_doc, dict_file, postings_file):
 
 		#print count
 
-def index_title(title):
+def index_title(title, postings_file):
 
 	p = open(postings_file, 'w')
 
 	tokens = tokenize(title)
-		for token in tokens:
-			p.write(token + '.title' + '\n')
-			# william.title [doc_freq] [patent_no., term_freq] [patent_no.] 
+	for token in tokens:
+		p.write(token + '.title' + '\n')
+		# william.title [doc_freq] [patent_no., term_freq] [patent_no.] 
 
-def index_abstract(abstract):
+def index_abstract(abstract, postings_file):
 	return 0
 
 def tokenize(text):
