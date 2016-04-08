@@ -14,56 +14,66 @@ stemmer = PorterStemmer()
 
 def build_index(directory_doc, dict_file, postings_file):
 
-	count = 1
+	# count = 1
 
 	dictionary_title = {}
 	dictionary_abstract = {}
 
 	for filename in os.listdir(directory_doc):
-		count += 1
+		# count += 1
 		f = os.path.join(directory_doc, filename)
 		tree = ET.parse(f)
 		root = tree.getroot()
 		for child in root:
 			if child.attrib['name'] == 'Title':
 				title = child.text.strip().lower()
-				dictionary_title = index_title(filename, title, dictionary_title)
+				dictionary_title.update(index_title(filename, title, dictionary_title))
 			if child.attrib['name'] == 'Abstract':
 				abstract = child.text.strip().lower()
-				dictionary_abstract = index_abstract(filename, abstract, dictionary_abstract)
+				dictionary_abstract.update(index_abstract(filename, abstract, dictionary_abstract))
 
-		#print count
+		print filename
 
-		p = open(postings_file, 'w')
-		# p.write(str(dictionary_title))
+	p = open(postings_file, 'w')
+	d = open(dict_file, 'w')
 
-		for word in dictionary_title:
+	for word in dictionary_title:
+		try:
 			doc_freq = len(dictionary_title[word])
-			p.write(word + '.title ' + str(doc_freq) + ' ')
-			for filename in dictionary_title[word]:
-				term_freq = dictionary_title[word][filename]
-				p.write('(' + filename + ', ' + str(term_freq) + ') ')
-			p.write('\n')
+			d.write(word + '.title ' + str(doc_freq) + ' \n')
+		except UnicodeEncodeError:
+			continue
+		for filename in dictionary_title[word]:
+			term_freq = dictionary_title[word][filename]
+			p.write('(' + filename + ', ' + str(term_freq) + ') ')
+		p.write('\n')
 
+	print 'titles written'
 
-		for word in dictionary_abstract:
+	
+	for word in dictionary_abstract:
+		try: 
 			doc_freq = len(dictionary_abstract[word])
-			p.write(word + '.title ' + str(doc_freq) + ' ')
-			for filename in dictionary_abstract[word]:
-				term_freq = dictionary_abstract[word][filename]
-				p.write('(' + filename + ', ' + str(term_freq) + ') ')
-			p.write('\n')
+			d.write(word + '.abstract ' + str(doc_freq) + ' \n')
+		except UnicodeEncodeError:
+			continue
+		for filename in dictionary_abstract[word]:
+			term_freq = dictionary_abstract[word][filename]
+			p.write('(' + filename + ', ' + str(term_freq) + ') ')
+		p.write('\n')
+		
+	
 
+	print 'abstracts written'
 
 def index_title(filename, title, dictionary_title):
 	
 	filename = filename.replace('.xml', '')
 
 	tokens = tokenize(title)
-	tokens = [token for token in tokens if token not in stop_list]
+	tokens = [stemmer.stem(token) for token in tokens if token not in stop_list]
 	for token in tokens:
 		if token in dictionary_title and filename in dictionary_title[token]:
-			print 'yes'
 			dictionary_title[token][filename] += 1
 		elif token in dictionary_title and not filename in dictionary_title[token]:
 			dictionary_title[token][filename] = 1
@@ -77,19 +87,18 @@ def index_abstract(filename, abstract, dictionary_abstract):
 	
 	filename = filename.replace('.xml', '')
 
-	tokens = tokenize(title)
-	tokens = [token for token in tokens if token not in stop_list]
+	tokens = tokenize(abstract)
+	tokens = [stemmer.stem(token) for token in tokens if token not in stop_list]
 	for token in tokens:
-		if token in dictionary_title and filename in dictionary_title[token]:
-			print 'yes'
-			dictionary_title[token][filename] += 1
-		elif token in dictionary_title and not filename in dictionary_title[token]:
-			dictionary_title[token][filename] = 1
+		if token in dictionary_abstract and filename in dictionary_abstract[token]:
+			dictionary_abstract[token][filename] += 1
+		elif token in dictionary_abstract and not filename in dictionary_abstract[token]:
+			dictionary_abstract[token][filename] = 1
 		else:
-			dictionary_title[token] = {}
-			dictionary_title[token][filename] = 1
+			dictionary_abstract[token] = {}
+			dictionary_abstract[token][filename] = 1
 	
-	return dictionary_title
+	return dictionary_abstract
 
 def tokenize(text):
 
@@ -100,6 +109,7 @@ def tokenize(text):
 def usage():
 	print 'usage: ' + sys.argv[0] + '-i directory-of-documents -d dictionary-file -p postings-file'
 	#python index.py -i /Users/vincenttan/Documents/patsnap-extract -d dictionary.txt -p postings.txt
+	#python index.py -i /Users/vincenttan/Documents/CS3245/Assign4/patsnap-corpus -d dictionary.txt -p postings.txt
 
 directory_doc = dict_file = postings_file = None
 try:
