@@ -50,9 +50,9 @@ def build_index(directory_doc, dict_file, postings_file):
 
 	print 'titles written'
 
-	
+
 	for word in dictionary_abstract:
-		try: 
+		try:
 			doc_freq = len(dictionary_abstract[word])
 			d.write(word + '.abstract ' + str(doc_freq) + ' \n')
 		except UnicodeEncodeError:
@@ -61,13 +61,13 @@ def build_index(directory_doc, dict_file, postings_file):
 			term_freq = dictionary_abstract[word][filename]
 			p.write('(' + filename + ', ' + str(term_freq) + ') ')
 		p.write('\n')
-		
-	
+
+
 
 	print 'abstracts written'
 
 def index_title(filename, title, dictionary_title):
-	
+
 	filename = filename.replace('.xml', '')
 
 	tokens = tokenize(title)
@@ -80,11 +80,11 @@ def index_title(filename, title, dictionary_title):
 		else:
 			dictionary_title[token] = {}
 			dictionary_title[token][filename] = 1
-	
+
 	return dictionary_title
 
 def index_abstract(filename, abstract, dictionary_abstract):
-	
+
 	filename = filename.replace('.xml', '')
 
 	tokens = tokenize(abstract)
@@ -97,7 +97,7 @@ def index_abstract(filename, abstract, dictionary_abstract):
 		else:
 			dictionary_abstract[token] = {}
 			dictionary_abstract[token][filename] = 1
-	
+
 	return dictionary_abstract
 
 def tokenize(text):
@@ -121,7 +121,7 @@ for o, a in opts:
 	if o == '-i':
 		directory_doc = a
 	elif o == '-d':
-		dict_file = a	
+		dict_file = a
 	elif o == '-p':
 		postings_file = sys.argv[6] # no idea why postings_file = a renders postings_file empty. That's why I used sys.argv[6] instead.
 	else:

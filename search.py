@@ -9,20 +9,63 @@ from nltk.tokenize import RegexpTokenizer
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
 
+linenum_to_offset = []
+term_to_linenum_title = dict()
+term_to_linenum_abstract = dict()
+docfreq_title = dict()
+docfreq_abstract = dict()
+
+
 def main():
     process_query(query_file)
 
 def process_query(query_file):
-    tree = ET.parse(query_file)
+    tree = ET.parse('ipc_definitions.xml')
     root = tree.getroot()
     q_title = root[0].text.strip()
     q_description = root[1].text.strip()
 
+#   Converts each line number to a file-offset for seeking in postings.txt
+#   Stores the file-offset for line i into linenum_to_offset[i]
+def parse_offsets():
+    offset = 0
+    for line in postings:
+        linenum_to_offset.append(offset)
+        offset += len(line)
+    postings.seek(0)
+
+
+#   Retrieves the postings list for the term from either the TITLE or ABSTRACT field
+#   Returns an array of (str,int) tuples: ( patentID, term-freq )
+def get_postings(term, title_or_abstract):
+    if title_or_abstract == "title":
+        postings.seek(linenum_to_offset(term_to_linenum_title(term)))
+    elif title_or_abstract == "abstract":
+        postings.seek(linenum_to_offset(term_to_linenum_abstract(term)))
+
+
+
+
+#   Reads dictionary.txt into 2 Python dictionaries: TITLE and ABSTRACT
+#   Key: term - Value: line number in file
+def read_dict():
+    with open(dict_file, 'r') as file:
+        i = 0
+        for line in file:
+            arr = line.split(' ')
+            key = arr[0].split('.')
+            if key[1] == 'title':
+                docfreq_title[key[0]] = arr[1]
+                term_to_linenum_title[key[0]] = i
+            elif key[1] == 'abstract':
+                docfreq_abstract[key[0]] == arr[1]
+                term_to_linenum_abstract[key[0]] = i
+            i += 1
 
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o output-positive-results-file -n output-negative-results-file'
-    #python search.py -d dictionary.txt -p postings.txt -q q1.xml -o q1-qrels+ve.txt q1-qrels-ve.txt  
+    #python search.py -d dictionary.txt -p postings.txt -q q1.xml -o q1-qrels+ve.txt q1-qrels-ve.txt
 
 dict_file = postings_file = query_file = positive_out_file = negative_out_file = None
 try:
