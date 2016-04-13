@@ -45,7 +45,7 @@ def build_index(directory_doc, dict_file, postings_file):
 			continue
 		for filename in dictionary_title[word]:
 			term_freq = dictionary_title[word][filename]
-			p.write('(' + filename + ', ' + str(term_freq) + ') ')
+			p.write(filename + ',' + str(term_freq) + ' ')
 		p.write('\n')
 
 	print 'titles written'
@@ -59,7 +59,7 @@ def build_index(directory_doc, dict_file, postings_file):
 			continue
 		for filename in dictionary_abstract[word]:
 			term_freq = dictionary_abstract[word][filename]
-			p.write('(' + filename + ', ' + str(term_freq) + ') ')
+			p.write(filename + ',' + str(term_freq) + ' ')
 		p.write('\n')
 
 
