@@ -4,10 +4,11 @@ import os
 import re
 import math
 import xml.etree.ElementTree as ET
+import string
 import nltk
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
-from nltk.tokenize import RegexpTokenizer
+from nltk.tokenize import word_tokenize
 
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
@@ -102,9 +103,17 @@ def index_abstract(filename, abstract, dictionary_abstract):
 
 def tokenize(text):
 
-	remove_punctuations = RegexpTokenizer(r'((?<=[^\w\s])\w(?=[^\w\s])|(\W))+', gaps=True)
+	tokenized_text = []
+	text = word_tokenize(text)
+	for word in text:
+		stripped_word = word.strip(string.punctuation)
+		stripped_word = re.sub(r'(\-)|(\/)', " ", stripped_word) #replace hyphens with space
+		if stripped_word:
+			tokenized_text.append(stripped_word)
 
-	return remove_punctuations.tokenize(text)
+	# text = [word.strip(string.punctuation) for word in text]
+
+	return tokenized_text
 
 def usage():
 	print 'usage: ' + sys.argv[0] + '-i directory-of-documents -d dictionary-file -p postings-file'
