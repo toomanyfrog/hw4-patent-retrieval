@@ -7,6 +7,7 @@ from gensim import corpora, models, similarities
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from collections import defaultdict
 
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
@@ -16,6 +17,8 @@ term_to_linenum_title = dict()
 term_to_linenum_abstract = dict()
 docfreq_title = dict()
 docfreq_abstract = dict()
+
+subclass_to_docs = defaultdict(list)
 
 postings = None
 
@@ -31,10 +34,14 @@ def main():
             for item in ans:
                 out.write(item + "\n")
 
-#   Retrieves and returns the list of relevant documents to the query.
-#   Ranks matches for words in title before that of the body.
-#   No tf-idf yet.
-def process_query(query_file):
+#   Retrieves and returns the list of documents in that subclass
+#   This list is considered 'large'. We will use both IPC and word matches as our candidates.
+def ipc_matches(ipcsubclass):
+    return list()
+
+#   Retrieves and returns the list of documents containing words that appear in the query.
+#   This list is considered 'large' - contains many irrelevant documents.
+def word_matches(query_file):
     tree = ET.parse(query_file)
     root = tree.getroot()
     q_title = stem_and_tokenize(root[0].text.strip().lower())
@@ -58,6 +65,7 @@ def stem_and_tokenize(line):
     tokens = tokenize(line)
     tokens = [stemmer.stem(token) for token in tokens if token not in stop_list]
     return tokens
+
 
 #   Tokenizes the text and strips punctuations
 #   Written by Tricia in index.py
@@ -115,6 +123,15 @@ def read_dict():
                 term_to_linenum_abstract[key[0]] = i
             i += 1
 
+#   Reads ___ into a (string, list) dictionary, subclass_to_docs
+#   Key: subclass - Value: list of patents in the corpus in the subclass
+def read_ipc():
+    with open('ipcfile.txt', 'r') as doc_to_ipc:
+        for line in doc_to_ipc:
+            arr = line.split(' ')
+            patId = arr[0]
+            subclass = arr[1]
+            subclass_to_docs[subclass].append(patId)
 
 def parse_ipc():
     tree = ET.parse('ipc_definitions.xml')
@@ -123,7 +140,7 @@ def parse_ipc():
         if "GLOSSARYOFTERMS" in definition.tag:
             for xhtml_p in definition.iter():
                 if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
-                    print xhtml_p.text
+                    #print xhtml_p.text
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
