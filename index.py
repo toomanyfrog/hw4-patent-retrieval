@@ -9,9 +9,43 @@ import nltk
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from gensim import corpora, models, similarities
 
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
+
+def build_gensim_index(directory_doc, dict_file, postings_file):
+	patsnap_bow = []
+	temp_bow = []
+	title_tokens = []
+	abstract_tokens = []
+
+	for filename in os.listdir(directory_doc):
+		# count += 1
+		f = os.path.join(directory_doc, filename)
+		tree = ET.parse(f)
+		root = tree.getroot()
+		for child in root:
+			temp_bow = []
+			if child.attrib['name'] == 'Title':
+				title = child.text.strip().lower()
+				title_tokens = tokenize(title)
+				title_tokens = [stemmer.stem(token) for token in title_tokens if token not in stop_list]
+			if child.attrib['name'] == 'Abstract':
+				abstract = child.text.strip().lower()
+				abstract_tokens = tokenize(abstract)
+				abstract_tokens = [stemmer.stem(token) for token in abstract_tokens if token not in stop_list]
+			
+			temp_bow = title_tokens + abstract_tokens
+
+		patsnap_bow.append(temp_bow)
+
+	dictionary = corpora.Dictionary(patsnap_bow)
+	dictionary.save(dict_file)  # Save the dictionary e.g. 'Apple': 0, 'Pear': 1 to dictionary.txt
+
+	corpus = [dictionary.doc2bow(doc) for doc in patsnap_bow]   # Turn the dictionary into a bag of words model corpus
+	corpora.MmCorpus.serialize(postings_file, corpus) # Store corpus to disk as postings.txt 
+
 
 def build_index(directory_doc, dict_file, postings_file):
 
@@ -38,6 +72,7 @@ def build_index(directory_doc, dict_file, postings_file):
 				ipc_sc = nltk.word_tokenize(child.text)
 				ipc_sc = str(ipc_sc)
 				ipc_sc = re.sub(r'(\')|(\[)|(\])', "", ipc_sc)
+				filename = filename.replace('.xml', '')
 				ipc_subclass_file.write(filename + ' ' + ipc_sc + '\n')
 
 		print filename
@@ -150,4 +185,4 @@ if directory_doc == None or dict_file == None or postings_file == None:
 	usage()
 	sys.exit(2)
 
-build_index(directory_doc, dict_file, postings_file)
+build_gensim_index(directory_doc, dict_file, postings_file)

@@ -3,10 +3,7 @@ import sys
 import xml.etree.ElementTree as ET
 import nltk
 import string
-<<<<<<< HEAD
-=======
 from gensim import corpora, models, similarities
->>>>>>> af3ab9c86437c638afb895cf28fb5b7393fa70e8
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
