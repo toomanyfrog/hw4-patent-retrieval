@@ -19,6 +19,7 @@ docfreq_abstract = dict()
 postings = None
 
 def main():
+    parse_ipc()
     global postings
     postings = open(postings_file, 'r')
     read_dict()                             # reads dictionary into memory
@@ -115,13 +116,15 @@ def read_dict():
 def parse_ipc():
     tree = ET.parse('ipc_definitions.xml')
     root = tree.getroot()
-    for definition in root.findall('GLOSSARYOFTERMS'):
-        print definition.find('xhtml:p').text
-
+    for definition in root.iter():
+        if "GLOSSARYOFTERMS" in definition.tag:
+            for xhtml_p in definition.iter():
+                if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
+                    print xhtml_p.text
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
-    #python search.py -d dictionary.txt -p postings.txt -q q1.xml -o q1-qrels+ve.txt q1-qrels-ve.txt
+    # python search.py -d dictionary.txt -p postings.txt -q q1.xml -o out.txt
 
 dict_file = postings_file = query_file = out_file = None
 try:
