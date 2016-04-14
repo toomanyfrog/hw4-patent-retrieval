@@ -41,11 +41,13 @@ def process_query(query_file):
     for head_word in q_title:
         pl = get_postings(head_word,'title')
         for item in pl:
-            results.append(item[0])
+            if item[0] not in results:
+                results.append(item[0])
     for body_word in q_description:
         pl = get_postings(body_word,'abstract')
         for item in pl:
-            results.append(item[0])
+            if item[0] not in results:
+                results.append(item[0])
     return results
 
 #   Stems, strips punctuations, tokenizes
