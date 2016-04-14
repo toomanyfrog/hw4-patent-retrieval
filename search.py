@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 import nltk
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
-from nltk.tokenize import RegexpTokenizer
+from nltk.tokenize import word_tokenize
 
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
@@ -20,10 +20,29 @@ def main():
     process_query(query_file)
 
 def process_query(query_file):
-    tree = ET.parse('ipc_definitions.xml')
+    tree = ET.parse('query_file')
     root = tree.getroot()
-    q_title = root[0].text.strip()
-    q_description = root[1].text.strip()
+    q_title = root[0].text.strip().lower()
+    q_description = root[1].text.strip().lower()
+
+def stem_and_tokenize(line):
+    tokens = tokenize(line)
+    tokens = [stemmer.stem(token) for token in tokens if token not in stop_list]
+    return tokens
+
+#   Tokenizes the text and strips punctuations
+#   Written by Tricia in index.py
+def tokenize(text):
+	tokenized_text = []
+	text = word_tokenize(text)
+	for word in text:
+		stripped_word = word.strip(string.punctuation)
+		stripped_word = re.sub(r'(\-)|(\/)', " ", stripped_word) #replace hyphens with space
+		if stripped_word:
+			tokenized_text.append(stripped_word)
+	return tokenized_text
+
+
 
 #   Converts each line number to a file-offset for seeking in postings.txt
 #   Stores the file-offset for line i into linenum_to_offset[i]
@@ -36,14 +55,20 @@ def parse_offsets():
 
 
 #   Retrieves the postings list for the term from either the TITLE or ABSTRACT field
-#   Returns an array of (str,int) tuples: ( patentID, term-freq )
+#   Returns an array of (str,int) pairs: [ patentID, term-freq ]
 def get_postings(term, title_or_abstract):
+    postings.seek(offset, 0)
     if title_or_abstract == "title":
         postings.seek(linenum_to_offset(term_to_linenum_title(term)))
     elif title_or_abstract == "abstract":
-        postings.seek(linenum_to_offset(term_to_linenum_abstract(term)))
-
-
+        postings.seek(linenum_to_offset(term_to_linenum_abstract(term))
+    postlist = postings.readline().strip(' \n')
+    postlist = postlist.split(' ')
+    for i in range(0, len(postlist)):
+        item = postlist[i]
+        postlist[i] = item.split(',')
+        postlist[i][1] = int(postlist[i][1])
+    return postlist
 
 
 #   Reads dictionary.txt into 2 Python dictionaries: TITLE and ABSTRACT
