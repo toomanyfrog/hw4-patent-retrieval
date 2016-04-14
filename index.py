@@ -20,6 +20,8 @@ def build_index(directory_doc, dict_file, postings_file):
 	dictionary_title = {}
 	dictionary_abstract = {}
 
+	ipc_subclass_file = open('ipc_subclass.txt', 'w')
+
 	for filename in os.listdir(directory_doc):
 		# count += 1
 		f = os.path.join(directory_doc, filename)
@@ -32,6 +34,11 @@ def build_index(directory_doc, dict_file, postings_file):
 			if child.attrib['name'] == 'Abstract':
 				abstract = child.text.strip().lower()
 				dictionary_abstract.update(index_abstract(filename, abstract, dictionary_abstract))
+			if child.attrib['name'] == 'IPC Subclass':
+				ipc_sc = nltk.word_tokenize(child.text)
+				ipc_sc = str(ipc_sc)
+				ipc_sc = re.sub(r'(\')|(\[)|(\])', "", ipc_sc)
+				ipc_subclass_file.write(filename + ' ' + ipc_sc + '\n')
 
 		print filename
 
