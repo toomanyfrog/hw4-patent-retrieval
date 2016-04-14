@@ -3,6 +3,7 @@ import sys
 import xml.etree.ElementTree as ET
 import nltk
 import string
+import gensim
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
