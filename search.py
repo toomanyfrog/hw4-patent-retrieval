@@ -15,16 +15,40 @@ term_to_linenum_abstract = dict()
 docfreq_title = dict()
 docfreq_abstract = dict()
 
+postings = None
 
 def main():
-    process_query(query_file)
+    global postings
+    postings = open(postings_file, 'r')
+    read_dict()                             # reads dictionary into memory
+    parse_offsets()                         # makes one pass through the postings file to store offset positions in memory
+    with open(query_file, 'r') as queries:
+        with open(out_file, 'w') as out:
+            ans = process_query(queries)
+            for item in ans:
+                out.write(item + " ")
 
+#   Retrieves and returns the list of relevant documents to the query.
+#   Ranks matches for words in title before that of the body.
+#   No tf-idf yet.
 def process_query(query_file):
     tree = ET.parse('query_file')
     root = tree.getroot()
-    q_title = root[0].text.strip().lower()
-    q_description = root[1].text.strip().lower()
+    q_title = stem_and_tokenize(root[0].text.strip().lower())
+    q_description = stem_and_tokenize(root[1].text.strip().lower())
+    results = []
+    for head_word in q_title:
+        pl = get_postings(word,'title')
+        for item in pl:
+            results.append(item[0])
+    for body_word in q_description:
+        pl = get_postings(word,'abstract')
+        for item in pl:
+            results.append(item[0])
+    return results
 
+#   Stems, strips punctuations, tokenizes
+#   Returns an array of tokens to be searched for.
 def stem_and_tokenize(line):
     tokens = tokenize(line)
     tokens = [stemmer.stem(token) for token in tokens if token not in stop_list]
@@ -61,7 +85,7 @@ def get_postings(term, title_or_abstract):
     if title_or_abstract == "title":
         postings.seek(linenum_to_offset(term_to_linenum_title(term)))
     elif title_or_abstract == "abstract":
-        postings.seek(linenum_to_offset(term_to_linenum_abstract(term))
+        postings.seek(linenum_to_offset(term_to_linenum_abstract(term)))
     postlist = postings.readline().strip(' \n')
     postlist = postlist.split(' ')
     for i in range(0, len(postlist)):
@@ -79,6 +103,7 @@ def read_dict():
         for line in file:
             arr = line.split(' ')
             key = arr[0].split('.')
+            print key
             if key[1] == 'title':
                 docfreq_title[key[0]] = arr[1]
                 term_to_linenum_title[key[0]] = i
@@ -89,10 +114,10 @@ def read_dict():
 
 
 def usage():
-    print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o output-positive-results-file -n output-negative-results-file'
+    print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
     #python search.py -d dictionary.txt -p postings.txt -q q1.xml -o q1-qrels+ve.txt q1-qrels-ve.txt
 
-dict_file = postings_file = query_file = positive_out_file = negative_out_file = None
+dict_file = postings_file = query_file = out_file = None
 try:
     opts, args = getopt.getopt(sys.argv[1:], 'd:p:q:o')
 except getopt.GetoptError, err:
@@ -106,11 +131,10 @@ for o, a in opts:
     elif o == '-q':
         query_file = a
     elif o == '-o':
-        positive_out_file = a
-        negative_out_file = sys.argv[9]
+        out_file = a
     else:
         assert False, 'unhandled option'
-if dict_file == None or postings_file == None or query_file == None or positive_out_file == None or negative_out_file == None:
+if dict_file == None or postings_file == None or query_file == None or out_file == None:
     usage()
     sys.exit(2)
 
