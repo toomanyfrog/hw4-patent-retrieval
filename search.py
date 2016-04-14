@@ -57,15 +57,14 @@ def stem_and_tokenize(line):
 #   Tokenizes the text and strips punctuations
 #   Written by Tricia in index.py
 def tokenize(text):
-	tokenized_text = []
-	text = word_tokenize(text)
-	for word in text:
-		stripped_word = word.strip(string.punctuation)
-		stripped_word = re.sub(r'(\-)|(\/)', " ", stripped_word) #replace hyphens with space
-		if stripped_word:
-			tokenized_text.append(stripped_word)
-	return tokenized_text
-
+    tokenized_text = []
+    text = re.sub(r'(\-)|(\/)', " ", text) #replace hyphens and slash with space
+    text = word_tokenize(text)
+    for word in text:
+        stripped_word = word.strip(string.punctuation)
+        if stripped_word:
+            tokenized_text.append(stripped_word)
+    return tokenized_text
 
 
 #   Converts each line number to a file-offset for seeking in postings.txt
@@ -112,6 +111,13 @@ def read_dict():
                 term_to_linenum_abstract[key[0]] = i
             i += 1
 
+
+def parse_ipc():
+    tree = ET.parse('ipc_definitions.xml')
+    root = tree.getroot()
+    for definition in root.findall('GLOSSARYOFTERMS'):
+        print definition.find('xhtml:p').text
+    
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
