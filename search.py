@@ -34,10 +34,10 @@ def stem_and_tokenize(line):
 #   Written by Tricia in index.py
 def tokenize(text):
 	tokenized_text = []
+    text = re.sub(r'(\-)|(\/)', " ", text) #replace hyphens and slash with space
 	text = word_tokenize(text)
 	for word in text:
 		stripped_word = word.strip(string.punctuation)
-		stripped_word = re.sub(r'(\-)|(\/)', " ", stripped_word) #replace hyphens with space
 		if stripped_word:
 			tokenized_text.append(stripped_word)
 	return tokenized_text

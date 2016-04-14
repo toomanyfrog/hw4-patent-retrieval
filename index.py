@@ -67,6 +67,7 @@ def build_index(directory_doc, dict_file, postings_file):
 
 	print 'abstracts written'
 
+
 def index_title(filename, title, dictionary_title):
 
 	filename = filename.replace('.xml', '')
@@ -83,6 +84,7 @@ def index_title(filename, title, dictionary_title):
 			dictionary_title[token][filename] = 1
 
 	return dictionary_title
+
 
 def index_abstract(filename, abstract, dictionary_abstract):
 
@@ -101,19 +103,21 @@ def index_abstract(filename, abstract, dictionary_abstract):
 
 	return dictionary_abstract
 
+
 def tokenize(text):
 
 	tokenized_text = []
+	text = re.sub(r'(\-)|(\/)', " ", text) #replace hyphens and slash with space
 	text = word_tokenize(text)
 	for word in text:
 		stripped_word = word.strip(string.punctuation)
-		stripped_word = re.sub(r'(\-)|(\/)', " ", stripped_word) #replace hyphens with space
 		if stripped_word:
 			tokenized_text.append(stripped_word)
 
 	# text = [word.strip(string.punctuation) for word in text]
 
 	return tokenized_text
+
 
 def usage():
 	print 'usage: ' + sys.argv[0] + '-i directory-of-documents -d dictionary-file -p postings-file'
