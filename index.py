@@ -30,7 +30,7 @@ stemmer = PorterStemmer()
 # Pre-condition : patsnap corpus
 # Post-condition: return dictionary.txt and postings.txt in gensim objects (Dictionary object and a matrix respectively)
 def build_gensim_index(directory_doc, dict_file, postings_file):
-	
+
 	patsnap_bow = []
 	temp_bow = []
 	title_tokens = []
@@ -42,7 +42,7 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 		root = tree.getroot()
 		for child in root:
 			temp_bow = []
-			
+
 			if child.attrib['name'] == 'Title':
 				title = child.text.strip().lower()
 				title_tokens = tokenize(title)
@@ -52,7 +52,7 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 				abstract = child.text.strip().lower()
 				abstract_tokens = tokenize(abstract)
 				abstract_tokens = [stemmer.stem(token) for token in abstract_tokens if token not in stop_list]
-			
+
 			temp_bow = title_tokens + abstract_tokens
 
 		patsnap_bow.append(temp_bow)
@@ -95,7 +95,11 @@ def build_index(directory_doc, dict_file, postings_file):
 			# if child.attrib['name'] == 'Title':
 			# 	title = child.text.strip().lower()
 			# 	dictionary_title.update(index_title(filename, title, dictionary_title))
+<<<<<<< HEAD
 
+=======
+            #
+>>>>>>> e631cd285f8d727161bd03d8dd8a9aafca5cb152
 			# if child.attrib['name'] == 'Abstract':
 			# 	abstract = child.text.strip().lower()
 			# 	dictionary_abstract.update(index_abstract(filename, abstract, dictionary_abstract))
@@ -108,10 +112,17 @@ def build_index(directory_doc, dict_file, postings_file):
 				ipc_subclass_file.write(filename + ' ' + ipc_sc + '\n')
 
 	# 	print filename
+<<<<<<< HEAD
 
 	# p = open(postings_file, 'w')
 	# d = open(dict_file, 'w')
 
+=======
+    #
+	# p = open(postings_file, 'w')
+	# d = open(dict_file, 'w')
+    #
+>>>>>>> e631cd285f8d727161bd03d8dd8a9aafca5cb152
 	# for word in dictionary_title:
 	# 	try:
 	# 		doc_freq = len(dictionary_title[word])
@@ -123,7 +134,11 @@ def build_index(directory_doc, dict_file, postings_file):
 	# 		p.write(filename + ',' + str(term_freq) + ' ')
 	# 	p.write('\n')
 	# print 'titles written'
+<<<<<<< HEAD
 
+=======
+    #
+>>>>>>> e631cd285f8d727161bd03d8dd8a9aafca5cb152
 	# for word in dictionary_abstract:
 	# 	try:
 	# 		doc_freq = len(dictionary_abstract[word])
@@ -218,7 +233,13 @@ for o, a in opts:
 if directory_doc == None or dict_file == None or postings_file == None:
 	usage()
 	sys.exit(2)
+<<<<<<< HEAD
 	
 build_index(directory_doc, dict_file, postings_file)
+=======
+
+
+>>>>>>> e631cd285f8d727161bd03d8dd8a9aafca5cb152
 build_gensim_index(directory_doc, dict_file, postings_file)
+build_index(directory_doc, dict_file, postings_file)
 build_patsnap_filename_list(directory_doc)

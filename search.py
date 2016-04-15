@@ -32,7 +32,6 @@ to_tdfidf = True                            # will we weight the corpus using tf
 postings = None
 
 def main():
-    #get_top_subclass()
     global postings
     # postings = open(postings_file, 'r')
     # read_dict()                             # reads dictionary into memory
@@ -82,7 +81,7 @@ def process_query(query_file):
 #   Parameters:
 #       - words         : a list of words to map the query to an LSI space
 #       - with_tfidf    : a boolean to indicate if tf-idf is turned on
-#   Returns a list of patents for which the similarity score is more than chosen_threshold
+#   Returns a list of patents for which the similarity score is more than chosen_threshold and a complete ranked list
 def rank_lsi(words, with_tfidf):
     # Read in dictionary.txt and postings.txt
     dictionary = corpora.Dictionary.load(dict_file)
