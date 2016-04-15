@@ -79,15 +79,11 @@ def build_LSI():
     #tfidfed_corpus = tfidf_model[postings]
     lsi_model = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
     ls_index = similarities.MatrixSimilarity(lsi_model[postings])
-
-<<<<<<< HEAD
     lsi_query = lsi_model[bag_of_query]
     similar_to_query = ls_index[lsi_query]
     similar_to_query = sorted(enumerate(similar_to_query), key=lambda x: -x[1])
     return filter(lambda x: x[1] > chosen_threshold, similar_to_query)
 
-=======
->>>>>>> 563dd8353a03c0f178fb7e9ec86cb838573937f1
 #   Retrieves and returns the list of documents in that subclass
 #   This list is considered 'large'. We will use both IPC and word matches as our candidates.
 def ipc_matches(ipcsubclass):
