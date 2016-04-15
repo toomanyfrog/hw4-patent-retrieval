@@ -22,6 +22,7 @@ docfreq_title = dict()
 docfreq_abstract = dict()
 
 subclass_to_docs = defaultdict(list)
+chosen_topic_num = 350                      # the number of topics to generate for each document
 
 postings = None
 
@@ -41,8 +42,13 @@ def main():
 #
 #
 def build_LSI():
+    # Read in dictionary.txt and postings.txt
+    dictionary = corpora.Dictionary.load(dict_file)
+    postings = corpora.MmCorpus(postings_file)
 
-    lsi = gensim.models.lsimodel.LsiModel(corpus=mm, id2word=id2word, num_topics=400)
+    tfidf_model = models.TfidfModel(postings, normalize=True)
+    tfidfed_corpus = tfidf_model[postings]    # Applying TF-IDF to the corpus
+    lsi = models.LsiModel(tfidfed_corpus, id2word=dictionary, num_topics=chosen_topic_num)   # Setting up Latent Semantic Indexing (LSI) model
 
 
 
