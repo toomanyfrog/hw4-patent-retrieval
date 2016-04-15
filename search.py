@@ -23,16 +23,16 @@ term_to_linenum_abstract = dict()
 docfreq_title = dict()
 docfreq_abstract = dict()
 subclass_to_docs = defaultdict(list)        # dictionary mapping an IPC subclass to a list of patents
+subclass_of_doc = dict()
 
 chosen_topic_num = 350                      # how many topics to generate for each document?
 chosen_threshold = 0.3                      # how similar must a document be for us to consider it relevant?
-to_tdfidf = False                           # will we weight the corpus using tf-idf?
+to_tdfidf = True                            # will we weight the corpus using tf-idf?
 
 postings = None
-lsi = None
 
 def main():
-    get_top_subclass()
+    #get_top_subclass()
     global postings
     # postings = open(postings_file, 'r')
     # read_dict()                             # reads dictionary into memory
@@ -54,14 +54,21 @@ def main():
             for item in ans:
                 out.write(patent_list[item[0]] + "\n")
 
+
 def process_query(query_file):
     tree = ET.parse(query_file)
     root = tree.getroot()
     q_title = stem_and_tokenize(root[0].text.strip().lower())
     q_description = stem_and_tokenize(root[1].text.strip().lower())
     words = q_title + q_description
-    ranked_list = rank_lsi(words, to_tdfidf)
-    return ranked_list
+    ranked_index = rank_lsi(words, to_tdfidf)
+    ranked_list = []
+    for item in ranked_index[0]:
+        ranked_list.append(patent_list[item[0]])
+    subclass_items = subclass_to_docs[get_top_subclass(ranked_list)]
+    final = filter(lambda x: x[1] > chosen_threshold or patent_list[x[0]] in subclass_items, ranked_index[1])
+    print final
+    return sorted(final, key=lambda x: -x[1])
 
 
 #   Creates the Gensim LSI model, using the dictionary and postings file.
@@ -73,6 +80,7 @@ def rank_lsi(words, with_tfidf):
     # Read in dictionary.txt and postings.txt
     dictionary = corpora.Dictionary.load(dict_file)
     postings = corpora.MmCorpus(postings_file)
+
     bag_of_query = dictionary.doc2bow(words)
 
     if with_tfidf:
@@ -81,14 +89,9 @@ def rank_lsi(words, with_tfidf):
     lsi_model = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
     ls_index = similarities.MatrixSimilarity(lsi_model[postings])
     lsi_query = lsi_model[bag_of_query]
-    similar_to_query = ls_index[lsi_query]
-    similar_to_query = sorted(enumerate(similar_to_query), key=lambda x: -x[1])
-    return filter(lambda x: x[1] > chosen_threshold, similar_to_query)
-
-#   Retrieves and returns the list of documents in that subclass
-#   This list is considered 'large'. We will use both IPC and word matches as our candidates.
-def ipc_matches(ipcsubclass):
-    return list()
+    total_lsi_rank = enumerate(ls_index[lsi_query])
+    similar_to_query = sorted(total_lsi_rank, key=lambda x: -x[1])
+    return [filter(lambda x: x[1] > chosen_threshold, similar_to_query), similar_to_query]
 
 #   Retrieves and returns the list of documents containing words that appear in the query.
 #   This list is considered 'large' - contains many irrelevant documents.
@@ -177,29 +180,24 @@ def read_ipc():
     with open('ipc_subclass.txt', 'r') as doc_to_ipc:
         for line in doc_to_ipc:
             arr = line.split(' ')
-            patId = arr[0]
-            subclass = arr[1]
+            patId = arr[0].strip('\n')
+            subclass = arr[1].strip('\n')
             subclass_to_docs[subclass].append(patId)
+            subclass_of_doc[patId] = subclass
 
 #   For a given list of patents, retrieves the IPC subclasses that the patents are in
 #   Returns the most frequently appeared IPC subclass
 def get_top_subclass(list_of_patents):
     count = {}
-    subclass_dict = {}
-    with open('ipc_subclass.txt', 'r') as f:
-        for line in f:
-            arr = line.split(' ')
-            patId = arr[0]
-            sc = arr[1]
-            subclass_dict[patId] = sc
     for patent in list_of_patents:
-        if subclass_dict.has_key(patent):
-            subclass = str(subclass_dict[patent]).strip(' \n')
+        if subclass_of_doc.has_key(patent):
+            subclass = str(subclass_of_doc[patent]).strip(' \n')
             if subclass in count:
                 count[subclass] += 1
             else:
                 count[subclass] = 1
-    top_subclass = count.keys()[0]
+    sorted_count = sorted(count.items(), key=operator.itemgetter(1))
+    top_subclass = sorted_count[-1][0]
     return top_subclass
 
 #   Reads in the list of files into a list
