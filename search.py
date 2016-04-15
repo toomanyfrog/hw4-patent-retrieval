@@ -26,7 +26,7 @@ subclass_to_docs = defaultdict(list)        # dictionary mapping an IPC subclass
 subclass_of_doc = dict()
 
 chosen_topic_num = 350                      # how many topics to generate for each document?
-chosen_threshold = 0.3                      # how similar must a document be for us to consider it relevant?
+chosen_threshold = 0.15                     # how similar must a document be for us to consider it relevant?
 to_tdfidf = True                            # will we weight the corpus using tf-idf?
 
 postings = None
