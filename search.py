@@ -26,16 +26,25 @@ subclass_to_docs = defaultdict(list)
 postings = None
 
 def main():
-    parse_ipc()
+    read_ipc()
     global postings
     postings = open(postings_file, 'r')
-    read_dict()                             # reads dictionary into memory
-    parse_offsets()                         # makes one pass through the postings file to store offset positions in memory
+    #read_dict()                             # reads dictionary into memory
+    #parse_offsets()                         # makes one pass through the postings file to store offset positions in memory
     with open(query_file, 'r') as queries:
         with open(out_file, 'w') as out:
-            ans = process_query(queries)
-            for item in ans:
-                out.write(item + "\n")
+            a = 1
+            #ans = process_query(queries)
+            #for item in ans:
+            #    out.write(item + "\n")
+
+#
+#
+def build_LSI():
+
+    lsi = gensim.models.lsimodel.LsiModel(corpus=mm, id2word=id2word, num_topics=400)
+
+
 
 #   Retrieves and returns the list of documents in that subclass
 #   This list is considered 'large'. We will use both IPC and word matches as our candidates.
@@ -126,10 +135,10 @@ def read_dict():
                 term_to_linenum_abstract[key[0]] = i
             i += 1
 
-#   Reads ___ into a (string, list) dictionary, subclass_to_docs
+#   Reads ipc_subclass.txt into a (string, list) dictionary, subclass_to_docs
 #   Key: subclass - Value: list of patents in the corpus in the subclass
 def read_ipc():
-    with open('ipcfile.txt', 'r') as doc_to_ipc:
+    with open('ipc_subclass.txt', 'r') as doc_to_ipc:
         for line in doc_to_ipc:
             arr = line.split(' ')
             patId = arr[0]
@@ -143,7 +152,8 @@ def parse_ipc():
         if "GLOSSARYOFTERMS" in definition.tag:
             for xhtml_p in definition.iter():
                 if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
-                    #print xhtml_p.text
+                    "print xhtml_p.text"
+                    a = 1
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
