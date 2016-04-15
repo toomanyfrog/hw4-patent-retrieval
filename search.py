@@ -34,7 +34,7 @@ def main():
     #parse_offsets()                         # makes one pass through the postings file to store offset positions in memory
     with open(query_file, 'r') as queries:
         with open(out_file, 'w') as out:
-            a = 1
+            build_LSI()
             #ans = process_query(queries)
             #for item in ans:
             #    out.write(item + "\n")
@@ -46,9 +46,9 @@ def build_LSI():
     dictionary = corpora.Dictionary.load(dict_file)
     postings = corpora.MmCorpus(postings_file)
 
-    tfidf_model = models.TfidfModel(postings, normalize=True)
-    tfidfed_corpus = tfidf_model[postings]   
-    lsi = models.LsiModel(tfidfed_corpus, id2word=dictionary, num_topics=chosen_topic_num)
+    #tfidf_model = models.TfidfModel(postings, normalize=True)
+    #tfidfed_corpus = tfidf_model[postings]
+    lsi = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
 
 
 
