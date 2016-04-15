@@ -1,7 +1,9 @@
 This is the README file for A0116733J-A0115696W-A0000000X’s submission
 
 == General Notes about this assignment ==
+5% code level documentation
 
+10% For your high level documentation, in your README document. This component comprises of an overview of your system, your system architecture and how your system deals with each of the optional components (query expansion, utilizing external resources, field/zone treatment, run-time optimizations, and the allocation of work to each of the individual members of the project team.
  
 == Files included with this submission ==
 

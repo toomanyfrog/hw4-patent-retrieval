@@ -26,16 +26,16 @@ subclass_to_docs = defaultdict(list)
 postings = None
 
 def main():
-    parse_ipc()
+    create_tfidf()
     global postings
-    postings = open(postings_file, 'r')
-    read_dict()                             # reads dictionary into memory
-    parse_offsets()                         # makes one pass through the postings file to store offset positions in memory
-    with open(query_file, 'r') as queries:
-        with open(out_file, 'w') as out:
-            ans = process_query(queries)
-            for item in ans:
-                out.write(item + "\n")
+    # postings = open(postings_file, 'r')
+    # read_dict()                             # reads dictionary into memory
+    # parse_offsets()                         # makes one pass through the postings file to store offset positions in memory
+    # with open(query_file, 'r') as queries:
+    #     with open(out_file, 'w') as out:
+    #         ans = process_query(queries)
+    #         for item in ans:
+    #             out.write(item + "\n")
 
 #   Retrieves and returns the list of documents in that subclass
 #   This list is considered 'large'. We will use both IPC and word matches as our candidates.
@@ -136,14 +136,27 @@ def read_ipc():
             subclass = arr[1]
             subclass_to_docs[subclass].append(patId)
 
-def parse_ipc():
+'''def parse_ipc():
     tree = ET.parse('ipc_definitions.xml')
     root = tree.getroot()
     for definition in root.iter():
         if "GLOSSARYOFTERMS" in definition.tag:
             for xhtml_p in definition.iter():
                 if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
-                    #print xhtml_p.text
+                    print xhtml_p.text'''
+
+def create_tfidf():
+
+    dictionary = corpora.Dictionary.load(dict_file)
+    corpus = corpora.MmCorpus(postings_file)
+
+    tfidf = models.TfidfModel(corpus, normalize=True)
+    corpus_tfidf = tfidf[corpus]
+
+    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
+    query_for_lsi = 
+    print lsi
+
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
