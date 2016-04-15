@@ -16,18 +16,17 @@ from gensim import corpora, models, similarities
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
 
-patent_list = []
-
+patent_list = []                            # index to patent file name
 linenum_to_offset = []
 term_to_linenum_title = dict()
 term_to_linenum_abstract = dict()
 docfreq_title = dict()
 docfreq_abstract = dict()
+subclass_to_docs = defaultdict(list)        # dictionary mapping an IPC subclass to a list of patents
 
-
-subclass_to_docs = defaultdict(list)
-chosen_topic_num = 350                      # the number of topics to generate for each document
-chosen_threshold = 0.3
+chosen_topic_num = 350                      # how many topics to generate for each document?
+chosen_threshold = 0.3                      # how similar must a document be for us to consider it relevant?
+to_tdfidf = False                           # will we weight the corpus using tf-idf?
 
 postings = None
 lsi = None
@@ -61,19 +60,24 @@ def process_query(query_file):
     q_title = stem_and_tokenize(root[0].text.strip().lower())
     q_description = stem_and_tokenize(root[1].text.strip().lower())
     words = q_title + q_description
-    ranked_list = rank_lsi(words)
+    ranked_list = rank_lsi(words, to_tdfidf)
     return ranked_list
 
+
 #   Creates the Gensim LSI model, using the dictionary and postings file.
-#
-def rank_lsi(words):
+#   Parameters:
+#       - words         : a list of words to map the query to an LSI space
+#       - with_tfidf    : a boolean to indicate if tf-idf is turned on
+#   Returns a list of patents for which the similarity score is more than chosen_threshold
+def rank_lsi(words, with_tfidf):
     # Read in dictionary.txt and postings.txt
     dictionary = corpora.Dictionary.load(dict_file)
     postings = corpora.MmCorpus(postings_file)
-
     bag_of_query = dictionary.doc2bow(words)
-    #tfidf_model = models.TfidfModel(postings, normalize=True)
-    #tfidfed_corpus = tfidf_model[postings]
+
+    if with_tfidf:
+        tfidf_model = models.TfidfModel(postings, normalize=True)
+        postings = tfidf_model[postings]
     lsi_model = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
     ls_index = similarities.MatrixSimilarity(lsi_model[postings])
     lsi_query = lsi_model[bag_of_query]
@@ -177,20 +181,17 @@ def read_ipc():
             subclass = arr[1]
             subclass_to_docs[subclass].append(patId)
 
-def get_top_subclass():
-
+#   For a given list of patents, retrieves the IPC subclasses that the patents are in
+#   Returns the most frequently appeared IPC subclass
+def get_top_subclass(list_of_patents):
     count = {}
     subclass_dict = {}
-
-    list_of_patents = ['EP0049154B2', 'EP0266476A2', 'EP2194567A1', 'EP2067524A1']
-
     with open('ipc_subclass.txt', 'r') as f:
         for line in f:
             arr = line.split(' ')
             patId = arr[0]
             sc = arr[1]
             subclass_dict[patId] = sc
-
     for patent in list_of_patents:
         if subclass_dict.has_key(patent):
             subclass = str(subclass_dict[patent]).strip(' \n')
@@ -198,27 +199,16 @@ def get_top_subclass():
                 count[subclass] += 1
             else:
                 count[subclass] = 1
-
     top_subclass = count.keys()[0]
+    return top_subclass
 
-    print top_subclass
-
-    # return top_subclass
-
+#   Reads in the list of files into a list
+#   This is for sorted numeric access to a patent name: e.g. patent_list[0]
 def read_filelist():
-    with open('.txt', 'r') as filenames:
+    with open('filenames.txt', 'r') as filenames:
         for filename in filenames:
-            filename = filename.replace('.xml', '')
+            filename = filename.replace('.xml', '').strip()
             patent_list.append(filename)
-
-'''def parse_ipc():
-    tree = ET.parse('ipc_definitions.xml')
-    root = tree.getroot()
-    for definition in root.iter():
-        if "GLOSSARYOFTERMS" in definition.tag:
-            for xhtml_p in definition.iter():
-                if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
-                    print xhtml_p.text'''
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
