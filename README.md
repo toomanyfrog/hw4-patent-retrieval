@@ -1,7 +1,6 @@
 This is the README file for A0116733J-A0115696W-A0000000X’s submission
 
 == General Notes about this assignment ==
-5% code level documentation
 
 10% For your high level documentation, in your README document. This component comprises of an overview of your system, your system architecture and how your system deals with each of the optional components (query expansion, utilizing external resources, field/zone treatment, run-time optimizations, and the allocation of work to each of the individual members of the project team.
  
@@ -11,19 +10,27 @@ List the files in your submission here and provide a short 1 line
 description of each file.  Make sure your submission's files are named
 and formatted correctly.
 
+-gensim					// Third-party library that does topic modelling 
+-dictionary.txt 		// Dictionary object from gensim written to this file 
+-filenames.txt 			// (Not included in submission, appears only when running index.py) This is a list of the patent names in the patsnap-corpus
+-index.py 				// The file that indexes patsnap-corpus. Generates dictionary.txt and postings.txt
+-ipc_subclass.txt 		// Gen
+-postings.txt 			//
+-README.md 				//
+-search.py 				//
 
 
 == Statement of individual work ==
 
 Please initial one of the following statements.
 
-[X] I, A0116733J, certify that my partners (A0115696W, A0000000X) and I have followed the CS 3245 Information
+[X] I, A0116733J, certify that my partners (A0115696W) and I have followed the CS 3245 Information
 Retrieval class guidelines for homework assignments.  In particular, I
 expressly vow that I have followed the Facebook rule in discussing
 with others in doing the assignment and did not take notes (digital or
 printed) from the discussions.  
 
-[X] I, A0116733J-A0115696W-A0000000X, did not follow the class rules regarding homework
+[X] I, A0116733J-A0115696W, did not follow the class rules regarding homework
 assignment, because of the following reason:
 
 // text
@@ -34,3 +41,4 @@ I suggest that I should be graded as follows:
 
 == References ==
 
+Discussed with Nelson, who has previously taken this module.

@@ -60,12 +60,13 @@ def build_patsnap_filename_list(directory_doc):
 		filename = filename.replace('.xml', '')
 		f.write(filename + '\n')
 
-# This function creates dictionary and postings list using our own format
+# This function creates dictionary, postings list and ipc subclasses using our customized format
 # E.g. word.title doc_freq <-- this is in dictionary.txt
 # E.g. (filename, term_freq) (filename, term_freq) <-- this is in postings.txt
 # Each line from both txt files corresponds to each other.
+# For ipc subclass, the format is: <<patent-filename ipc-subclass>>
 # Pre-condition : Patsnap corpus
-# Post-condition: return dictionary.txt and postings.txt in the above format
+# Post-condition: return dictionary.txt, postings.txt in the above format and ipc_subclass.txt
 def build_index(directory_doc, dict_file, postings_file):
 
 	dictionary_title = {}
