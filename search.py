@@ -27,6 +27,7 @@ chosen_topic_num = 350                      # the number of topics to generate f
 postings = None
 
 def main():
+<<<<<<< HEAD
     create_tfidf()
     global postings
     # postings = open(postings_file, 'r')
@@ -37,6 +38,7 @@ def main():
     #         ans = process_query(queries)
     #         for item in ans:
     #             out.write(item + "\n")
+=======
     read_ipc()
     global postings
     postings = open(postings_file, 'r')
@@ -49,6 +51,8 @@ def main():
             #for item in ans:
             #    out.write(item + "\n")
 
+#
+#
 def build_LSI():
     # Read in dictionary.txt and postings.txt
     dictionary = corpora.Dictionary.load(dict_file)
@@ -57,6 +61,9 @@ def build_LSI():
     #tfidf_model = models.TfidfModel(postings, normalize=True)
     #tfidfed_corpus = tfidf_model[postings]
     lsi = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
+
+
+>>>>>>> 467d8c137a3c7c81644b57603bf4debfe65218c2
 
 #   Retrieves and returns the list of documents in that subclass
 #   This list is considered 'large'. We will use both IPC and word matches as our candidates.
@@ -157,6 +164,16 @@ def read_ipc():
             subclass = arr[1]
             subclass_to_docs[subclass].append(patId)
 
+'''def parse_ipc():
+    tree = ET.parse('ipc_definitions.xml')
+    root = tree.getroot()
+    for definition in root.iter():
+        if "GLOSSARYOFTERMS" in definition.tag:
+            for xhtml_p in definition.iter():
+                if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
+<<<<<<< HEAD
+                    print xhtml_p.text'''
+
 def create_tfidf():
 
     dictionary = corpora.Dictionary.load(dict_file)
@@ -166,8 +183,13 @@ def create_tfidf():
     corpus_tfidf = tfidf[corpus]
 
     lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
-    # query_for_lsi = 
+    query_for_lsi = 
     print lsi
+
+=======
+                    "print xhtml_p.text"
+                    a = 1
+>>>>>>> 467d8c137a3c7c81644b57603bf4debfe65218c2
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
