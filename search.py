@@ -216,7 +216,7 @@ def read_filelist():
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
-    # python search.py -d dictionary.txt -p postings.txt -q q1.xml -o out.txt
+    # python search.py -d dictionary.txt -p postings.txt -q q2.xml -o out.txt
 
 dict_file = postings_file = query_file = out_file = None
 try:

@@ -8,6 +8,49 @@ This is the README file for A0116733J-A0115696W's submission
 As known, there are two main components in the system: Indexing and Searching.
 
 In pre-processing, the Indexing component does the following:
+<<<<<<< HEAD
+1. Use xml.etree.ElementTree to parse patsnap corpus XML files.
+2. Index only Title and Abstract of the patent files
+3. Use Porter Stemmer and Stopword list filtering for text processing
+4. Use Gensim library to implement topic modeling
+
+When user query the system, the Searching component does the following:
+1. Dissect query into a bag of words
+2. Use tf-idf weighting with query terms
+3. Model the query with Latent Semantic Indexing 
+4. Compare query with LSI models (???)
+ 
+
+---- Failed attempts (hence not included in final build) ----
+
+Main Points For Previous Attempts:
+
+I) We attempted the use of the Latent Dirichlet Allocation model, but the performance results fared worse-off as compared to the use of Latent Semantic Indexing. As a result, we decided against it and chose to use Latent Semantic Indexing instead.
+
+II) We attempted query expansion, by indexing all the words in title and abstract from the top 1% of the results, but it did not work very well possibly due to the extra noise produced by the additional words in the patents. May work better if we are able to determine the key words, instead of indexing all the words in the patent files.
+
+III) Our code for other previous attempts can be found in our index.py and search.py files (Commented out)
+
+---- Allocation of Work ----
+I) Choo Jia Le: Did research on Latent Semantic Indexing heuristics, testing of cases and brainstorming on further ideas to improve precision and accuracy.
+
+II) Lim Jing Rong: Did debugging, testing of cases and research of Latent Dirichlet Allocation modeling heuristics.
+
+III) Nelson Goh: Did research on the ideas of topic modeling and implementation on Python. Found relevant libraries and models to use for this assignment.
+
+All members participated and contributed equally and carried out pair-programming during the period of this assignment.
+
+
+---- Misc -----
+We also created a function (is_ascii) to detect non-ascii characters during the reading of our patent documents, and subsequently ignore it, as part of processing.
+
+Things that we could have done better:
+
+I) Could have carried out more queries and conducted more experiements to find out a more accurate distribution of topics for our corpus, for better modeling.
+ 
+== Files included with this submission ==
+
+=======
     1. Use xml.etree.ElementTree to parse patsnap corpus XML files.
     2. Retrieve the words from the title and abstract zones of the corpus patents.
     3. Remove punctuation, stopwords, and conduct stemming
@@ -70,6 +113,7 @@ We have included the code in the file.
 ==============================================================================================
 Files included with this submission:
 ==============================================================================================
+>>>>>>> e631cd285f8d727161bd03d8dd8a9aafca5cb152
 List the files in your submission here and provide a short 1 line
 description of each file.  Make sure your submission's files are named
 and formatted correctly.
