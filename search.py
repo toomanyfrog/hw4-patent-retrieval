@@ -47,8 +47,8 @@ def build_LSI():
     postings = corpora.MmCorpus(postings_file)
 
     tfidf_model = models.TfidfModel(postings, normalize=True)
-    tfidfed_corpus = tfidf_model[postings]    # Applying TF-IDF to the corpus
-    lsi = models.LsiModel(tfidfed_corpus, id2word=dictionary, num_topics=chosen_topic_num)   # Setting up Latent Semantic Indexing (LSI) model
+    tfidfed_corpus = tfidf_model[postings]   
+    lsi = models.LsiModel(tfidfed_corpus, id2word=dictionary, num_topics=chosen_topic_num)
 
 
 
