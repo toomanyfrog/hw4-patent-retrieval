@@ -1,3 +1,15 @@
+# Import setup libraries
+import pip
+import importlib
+
+def install(package):
+    pip.main(['install', package])
+    importlib.import_module(package)
+
+if __name__ == '__main__':
+    install('gensim')
+
+# Import additional libraries
 import sys
 import getopt
 import os
@@ -183,6 +195,7 @@ def tokenize(text):
 
 
 def usage():
+
 	print 'usage: ' + sys.argv[0] + '-i directory-of-documents -d dictionary-file -p postings-file'
 	# python index.py -i /Users/vincenttan/Documents/patsnap-extract -d dictionary.txt -p postings.txt
 	# python index.py -i /Users/vincenttan/Documents/CS3245/Assign4/patsnap-corpus -d dictionary.txt -p postings.txt
@@ -205,6 +218,7 @@ for o, a in opts:
 if directory_doc == None or dict_file == None or postings_file == None:
 	usage()
 	sys.exit(2)
+	
 
 build_gensim_index(directory_doc, dict_file, postings_file)
 build_patsnap_filename_list(directory_doc)
