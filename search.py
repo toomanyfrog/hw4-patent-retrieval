@@ -10,6 +10,7 @@ from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from collections import defaultdict
+from gensim import corpora, models, similarities
 
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
@@ -52,6 +53,7 @@ def main():
             for item in ans:
                 out.write(patent_list[item[0]] + "\n")
 
+<<<<<<< HEAD
 def process_query(query_file):
     tree = ET.parse(query_file)
     root = tree.getroot()
@@ -64,6 +66,10 @@ def process_query(query_file):
 #   Creates the Gensim LSI model, using the dictionary and postings file.
 #
 def rank_lsi(words):
+=======
+
+def build_LSI():
+>>>>>>> 563dd8353a03c0f178fb7e9ec86cb838573937f1
     # Read in dictionary.txt and postings.txt
     dictionary = corpora.Dictionary.load(dict_file)
     postings = corpora.MmCorpus(postings_file)
@@ -74,11 +80,14 @@ def rank_lsi(words):
     lsi_model = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
     ls_index = similarities.MatrixSimilarity(lsi_model[postings])
 
+<<<<<<< HEAD
     lsi_query = lsi_model[bag_of_query]
     similar_to_query = ls_index[lsi_query]
     similar_to_query = sorted(enumerate(similar_to_query), key=lambda x: -x[1])
     return filter(lambda x: x[1] > chosen_threshold, similar_to_query)
 
+=======
+>>>>>>> 563dd8353a03c0f178fb7e9ec86cb838573937f1
 #   Retrieves and returns the list of documents in that subclass
 #   This list is considered 'large'. We will use both IPC and word matches as our candidates.
 def ipc_matches(ipcsubclass):
@@ -189,7 +198,6 @@ def read_filelist():
             for xhtml_p in definition.iter():
                 if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
                     print xhtml_p.text'''
-
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
