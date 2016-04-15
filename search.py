@@ -3,9 +3,9 @@ import sys
 import xml.etree.ElementTree as ET
 import nltk
 import string
-# import logging, gensim, bz2
+import logging, gensim, bz2
 
-# from gensim import corpora, models, similarities
+from gensim import corpora, models, similarities
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -14,19 +14,23 @@ from collections import defaultdict
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
 
+patent_list = []
+
 linenum_to_offset = []
 term_to_linenum_title = dict()
 term_to_linenum_abstract = dict()
 docfreq_title = dict()
 docfreq_abstract = dict()
 
+
 subclass_to_docs = defaultdict(list)
 chosen_topic_num = 350                      # the number of topics to generate for each document
+chosen_threshold = 0.3
 
 postings = None
+lsi = None
 
 def main():
-    create_tfidf()
     global postings
     # postings = open(postings_file, 'r')
     # read_dict()                             # reads dictionary into memory
@@ -37,29 +41,43 @@ def main():
     #         for item in ans:
     #             out.write(item + "\n")
     read_ipc()
+    read_filelist()
     global postings
     postings = open(postings_file, 'r')
     #read_dict()                             # reads dictionary into memory
     #parse_offsets()                         # makes one pass through the postings file to store offset positions in memory
     with open(query_file, 'r') as queries:
         with open(out_file, 'w') as out:
-            build_LSI()
-            #ans = process_query(queries)
-            #for item in ans:
-            #    out.write(item + "\n")
+            ans = process_query(queries)
+            for item in ans:
+                out.write(patent_list[item[0]] + "\n")
 
+def process_query(query_file):
+    tree = ET.parse(query_file)
+    root = tree.getroot()
+    q_title = stem_and_tokenize(root[0].text.strip().lower())
+    q_description = stem_and_tokenize(root[1].text.strip().lower())
+    words = q_title + q_description
+    ranked_list = rank_lsi(words)
+    return ranked_list
+
+#   Creates the Gensim LSI model, using the dictionary and postings file.
 #
-#
-def build_LSI():
+def rank_lsi(words):
     # Read in dictionary.txt and postings.txt
     dictionary = corpora.Dictionary.load(dict_file)
     postings = corpora.MmCorpus(postings_file)
 
+    bag_of_query = dictionary.doc2bow(words)
     #tfidf_model = models.TfidfModel(postings, normalize=True)
     #tfidfed_corpus = tfidf_model[postings]
-    lsi = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
+    lsi_model = models.LsiModel(postings, id2word=dictionary, num_topics=chosen_topic_num)
+    ls_index = similarities.MatrixSimilarity(lsi_model[postings])
 
-
+    lsi_query = lsi_model[bag_of_query]
+    similar_to_query = ls_index[lsi_query]
+    similar_to_query = sorted(enumerate(similar_to_query), key=lambda x: -x[1])
+    return filter(lambda x: x[1] > chosen_threshold, similar_to_query)
 
 #   Retrieves and returns the list of documents in that subclass
 #   This list is considered 'large'. We will use both IPC and word matches as our candidates.
@@ -68,11 +86,7 @@ def ipc_matches(ipcsubclass):
 
 #   Retrieves and returns the list of documents containing words that appear in the query.
 #   This list is considered 'large' - contains many irrelevant documents.
-def word_matches(query_file):
-    tree = ET.parse(query_file)
-    root = tree.getroot()
-    q_title = stem_and_tokenize(root[0].text.strip().lower())
-    q_description = stem_and_tokenize(root[1].text.strip().lower())
+def word_matches(q_title, q_abstract):
     results = []
     for head_word in q_title:
         pl = get_postings(head_word,'title')
@@ -86,10 +100,11 @@ def word_matches(query_file):
                 results.append(item[0])
     return results
 
-#   Stems, strips punctuations, tokenizes
+#   Stems, strips punctuations, tokenizes, removes stopwords
 #   Returns an array of tokens to be searched for.
 def stem_and_tokenize(line):
     tokens = tokenize(line)
+    tokens = filter(lambda x: x not in stop_list, tokens)
     tokens = [stemmer.stem(token) for token in tokens if token not in stop_list]
     return tokens
 
@@ -160,6 +175,12 @@ def read_ipc():
             subclass = arr[1]
             subclass_to_docs[subclass].append(patId)
 
+def read_filelist():
+    with open('.txt', 'r') as filenames:
+        for filename in filenames:
+            filename = filename.replace('.xml', '')
+            patent_list.append(filename)
+
 '''def parse_ipc():
     tree = ET.parse('ipc_definitions.xml')
     root = tree.getroot()
@@ -168,18 +189,6 @@ def read_ipc():
             for xhtml_p in definition.iter():
                 if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
                     print xhtml_p.text'''
-
-def create_tfidf():
-
-    dictionary = corpora.Dictionary.load(dict_file)
-    corpus = corpora.MmCorpus(postings_file)
-
-    tfidf = models.TfidfModel(corpus, normalize=True)
-    corpus_tfidf = tfidf[corpus]
-
-    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
-    query_for_lsi =
-    print lsi
 
 
 def usage():
