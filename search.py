@@ -51,7 +51,7 @@ def main():
         with open(out_file, 'w') as out:
             ans = process_query(queries)
             for item in ans:
-                out.write(patent_list[item[0]] + "\n")
+                out.write(patent_list[item[0]] + " ")
 
 
 def process_query(query_file):
