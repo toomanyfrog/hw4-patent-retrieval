@@ -14,6 +14,9 @@ from gensim import corpora, models, similarities
 stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
 
+# This function builds dictionary and postings list using third party library gensim.
+# Pre-condition : patsnap corpus
+# Post-condition: return dictionary.txt and postings.txt in gensim objects (Dictionary object and a matrix respectively)
 def build_gensim_index(directory_doc, dict_file, postings_file):
 	
 	patsnap_bow = []
@@ -23,7 +26,7 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 
 	for filename in os.listdir(directory_doc):
 		f = os.path.join(directory_doc, filename)
-		tree = ET.parse(f)
+		tree = ET.parse(f) # parse XML file into a tree
 		root = tree.getroot()
 		for child in root:
 			temp_bow = []
@@ -48,7 +51,7 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 	corpus = [dictionary.doc2bow(doc) for doc in patsnap_bow]   # Coverts to dictionary to bag of words model
 	corpora.MmCorpus.serialize(postings_file, corpus) # Write to postings_file
 
-
+# This function creates a list of all the filenames in the patsnap corpus for search.py to use
 def build_patsnap_filename_list(directory_doc):
 
 	f = open('filenames.txt', 'w')
@@ -57,6 +60,12 @@ def build_patsnap_filename_list(directory_doc):
 		filename = filename.replace('.xml', '')
 		f.write(filename + '\n')
 
+# This function creates dictionary and postings list using our own format
+# E.g. word.title doc_freq <-- this is in dictionary.txt
+# E.g. (filename, term_freq) (filename, term_freq) <-- this is in postings.txt
+# Each line from both txt files corresponds to each other.
+# Pre-condition : Patsnap corpus
+# Post-condition: return dictionary.txt and postings.txt in the above format
 def build_index(directory_doc, dict_file, postings_file):
 
 	dictionary_title = {}
@@ -114,7 +123,10 @@ def build_index(directory_doc, dict_file, postings_file):
 		p.write('\n')
 	print 'abstracts written'
 
-
+# This function does the indexing for title tag in the patsnap xml file
+# Pre-condition : The current filename, string of words from title tag and a dictionary for titles
+# Post-condition: return updated dictionary of titles (key1: term, key2: corresponding filename, value: term frequency)
+#				  									       **term should be stemmed and not in the stopword list**
 def index_title(filename, title, dictionary_title):
 
 	filename = filename.replace('.xml', '')
@@ -132,7 +144,10 @@ def index_title(filename, title, dictionary_title):
 
 	return dictionary_title
 
-
+# This function does the indexing for abstract tag in the patsnap xml file and is similar to index_title()
+# Pre-condition : The current filename, string of words from abstract tag and a dictionary for abstract
+# Post-condition: return updated dictionary of titles (key1: term, key2: corresponding filename, value: term frequency)
+#				  									       **term should be stemmed and not in the stopword list**
 def index_abstract(filename, abstract, dictionary_abstract):
 
 	filename = filename.replace('.xml', '')
@@ -150,11 +165,13 @@ def index_abstract(filename, abstract, dictionary_abstract):
 
 	return dictionary_abstract
 
-
+# This function tokenizes a string of text
+# Pre-condition : A string of text
+# Post-condition: returns a list of tokens, which are text that has been split by nltk word_tokenize method and stripped of any punctuations
 def tokenize(text):
 
 	tokenized_text = []
-	text = re.sub(r'(\-)|(\/)', " ", text) #replace hyphens and slash with space
+	text = re.sub(r'(\-)|(\/)', " ", text) # replace hyphens and slash with space
 	text = word_tokenize(text)
 	for word in text:
 		stripped_word = word.strip(string.punctuation)
@@ -166,8 +183,8 @@ def tokenize(text):
 
 def usage():
 	print 'usage: ' + sys.argv[0] + '-i directory-of-documents -d dictionary-file -p postings-file'
-	#python index.py -i /Users/vincenttan/Documents/patsnap-extract -d dictionary.txt -p postings.txt
-	#python index.py -i /Users/vincenttan/Documents/CS3245/Assign4/patsnap-corpus -d dictionary.txt -p postings.txt
+	# python index.py -i /Users/vincenttan/Documents/patsnap-extract -d dictionary.txt -p postings.txt
+	# python index.py -i /Users/vincenttan/Documents/CS3245/Assign4/patsnap-corpus -d dictionary.txt -p postings.txt
 
 directory_doc = dict_file = postings_file = None
 try:
