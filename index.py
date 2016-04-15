@@ -47,16 +47,15 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 
 	corpus = [dictionary.doc2bow(doc) for doc in patsnap_bow]   # Coverts to dictionary to bag of words model
 	corpora.MmCorpus.serialize(postings_file, corpus) # Write to postings_file
-	
-	# Testing matrix
-	
-	mm = corpora.MmCorpus('postings.txt')
 
-	lsi = models.lsimodel.LsiModel(corpus=corpus, id2word=dictionary, num_topics=10)
-	print lsi.print_topics(10)
 
-	# End Testing matrix
+def build_patsnap_filename_list(directory_doc):
 
+	f = open('filenames.txt', 'w')
+
+	for filename in os.listdir(directory_doc):
+		filename = filename.replace('.xml', '')
+		f.write(filename + '\n')
 
 def build_index(directory_doc, dict_file, postings_file):
 
@@ -190,3 +189,4 @@ if directory_doc == None or dict_file == None or postings_file == None:
 	sys.exit(2)
 
 build_gensim_index(directory_doc, dict_file, postings_file)
+build_patsnap_filename_list(directory_doc)

@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import nltk
 import string
 import logging, gensim, bz2
+import operator
 
 from gensim import corpora, models, similarities
 from nltk.stem.porter import *
@@ -27,7 +28,7 @@ chosen_topic_num = 350                      # the number of topics to generate f
 postings = None
 
 def main():
-    create_tfidf()
+    get_top_subclass()
     global postings
     # postings = open(postings_file, 'r')
     # read_dict()                             # reads dictionary into memory
@@ -159,17 +160,34 @@ def read_ipc():
             subclass = arr[1]
             subclass_to_docs[subclass].append(patId)
 
-def create_tfidf():
+def get_top_subclass():
 
-    dictionary = corpora.Dictionary.load(dict_file)
-    corpus = corpora.MmCorpus(postings_file)
+    count = {}
+    subclass_dict = {}
 
-    tfidf = models.TfidfModel(corpus, normalize=True)
-    corpus_tfidf = tfidf[corpus]
+    list_of_patents = ['EP0049154B2', 'EP0266476A2', 'EP2194567A1', 'EP2067524A1']
 
-    lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
-    query_for_lsi = 
-    print lsi
+    with open('ipc_subclass.txt', 'r') as f:
+        for line in f:
+            arr = line.split(' ')
+            patId = arr[0]
+            sc = arr[1]
+            subclass_dict[patId] = sc
+
+    for patent in list_of_patents:
+        if subclass_dict.has_key(patent):
+            subclass = str(subclass_dict[patent]).strip(' \n')
+            if subclass in count:
+                count[subclass] += 1
+            else:
+                count[subclass] = 1
+
+    top_subclass = count.keys()[0]
+
+    print top_subclass
+
+    # return top_subclass
+
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
