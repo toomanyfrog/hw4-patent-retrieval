@@ -15,22 +15,24 @@ stop_list = stopwords.words('english')
 stemmer = PorterStemmer()
 
 def build_gensim_index(directory_doc, dict_file, postings_file):
+	
 	patsnap_bow = []
 	temp_bow = []
 	title_tokens = []
 	abstract_tokens = []
 
 	for filename in os.listdir(directory_doc):
-		# count += 1
 		f = os.path.join(directory_doc, filename)
 		tree = ET.parse(f)
 		root = tree.getroot()
 		for child in root:
 			temp_bow = []
+			
 			if child.attrib['name'] == 'Title':
 				title = child.text.strip().lower()
 				title_tokens = tokenize(title)
 				title_tokens = [stemmer.stem(token) for token in title_tokens if token not in stop_list]
+
 			if child.attrib['name'] == 'Abstract':
 				abstract = child.text.strip().lower()
 				abstract_tokens = tokenize(abstract)
@@ -41,15 +43,22 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 		patsnap_bow.append(temp_bow)
 
 	dictionary = corpora.Dictionary(patsnap_bow)
-	dictionary.save(dict_file)  # Save the dictionary e.g. 'Apple': 0, 'Pear': 1 to dictionary.txt
+	dictionary.save(dict_file)  # write to dict_file
 
-	corpus = [dictionary.doc2bow(doc) for doc in patsnap_bow]   # Turn the dictionary into a bag of words model corpus
-	corpora.MmCorpus.serialize(postings_file, corpus) # Store corpus to disk as postings.txt 
+	corpus = [dictionary.doc2bow(doc) for doc in patsnap_bow]   # Coverts to dictionary to bag of words model
+	corpora.MmCorpus.serialize(postings_file, corpus) # Write to postings_file
+	
+	# Testing matrix
+	
+	mm = corpora.MmCorpus('postings.txt')
+
+	lsi = models.lsimodel.LsiModel(corpus=corpus, id2word=dictionary, num_topics=10)
+	print lsi.print_topics(10)
+
+	# End Testing matrix
 
 
 def build_index(directory_doc, dict_file, postings_file):
-
-	# count = 1
 
 	dictionary_title = {}
 	dictionary_abstract = {}
@@ -57,17 +66,19 @@ def build_index(directory_doc, dict_file, postings_file):
 	ipc_subclass_file = open('ipc_subclass.txt', 'w')
 
 	for filename in os.listdir(directory_doc):
-		# count += 1
 		f = os.path.join(directory_doc, filename)
 		tree = ET.parse(f)
 		root = tree.getroot()
 		for child in root:
+
 			if child.attrib['name'] == 'Title':
 				title = child.text.strip().lower()
 				dictionary_title.update(index_title(filename, title, dictionary_title))
+
 			if child.attrib['name'] == 'Abstract':
 				abstract = child.text.strip().lower()
 				dictionary_abstract.update(index_abstract(filename, abstract, dictionary_abstract))
+
 			if child.attrib['name'] == 'IPC Subclass':
 				ipc_sc = nltk.word_tokenize(child.text)
 				ipc_sc = str(ipc_sc)
@@ -90,9 +101,7 @@ def build_index(directory_doc, dict_file, postings_file):
 			term_freq = dictionary_title[word][filename]
 			p.write(filename + ',' + str(term_freq) + ' ')
 		p.write('\n')
-
 	print 'titles written'
-
 
 	for word in dictionary_abstract:
 		try:
@@ -104,9 +113,6 @@ def build_index(directory_doc, dict_file, postings_file):
 			term_freq = dictionary_abstract[word][filename]
 			p.write(filename + ',' + str(term_freq) + ' ')
 		p.write('\n')
-
-
-
 	print 'abstracts written'
 
 
@@ -155,8 +161,6 @@ def tokenize(text):
 		stripped_word = word.strip(string.punctuation)
 		if stripped_word:
 			tokenized_text.append(stripped_word)
-
-	# text = [word.strip(string.punctuation) for word in text]
 
 	return tokenized_text
 
