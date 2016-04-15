@@ -33,10 +33,7 @@ postings = None
 lsi = None
 
 def main():
-<<<<<<< HEAD
     get_top_subclass()
-=======
->>>>>>> 0a49a90a7b705400d13611fb2bb19a519d789669
     global postings
     # postings = open(postings_file, 'r')
     # read_dict()                             # reads dictionary into memory
@@ -58,7 +55,6 @@ def main():
             for item in ans:
                 out.write(patent_list[item[0]] + "\n")
 
-<<<<<<< HEAD
 def process_query(query_file):
     tree = ET.parse(query_file)
     root = tree.getroot()
@@ -71,10 +67,6 @@ def process_query(query_file):
 #   Creates the Gensim LSI model, using the dictionary and postings file.
 #
 def rank_lsi(words):
-=======
-
-def build_LSI():
->>>>>>> 563dd8353a03c0f178fb7e9ec86cb838573937f1
     # Read in dictionary.txt and postings.txt
     dictionary = corpora.Dictionary.load(dict_file)
     postings = corpora.MmCorpus(postings_file)
@@ -185,7 +177,6 @@ def read_ipc():
             subclass = arr[1]
             subclass_to_docs[subclass].append(patId)
 
-<<<<<<< HEAD
 def get_top_subclass():
 
     count = {}
@@ -214,7 +205,6 @@ def get_top_subclass():
 
     # return top_subclass
 
-=======
 def read_filelist():
     with open('.txt', 'r') as filenames:
         for filename in filenames:
@@ -229,7 +219,6 @@ def read_filelist():
             for xhtml_p in definition.iter():
                 if "{http://www.w3.org/1999/xhtml}p" in xhtml_p.tag:
                     print xhtml_p.text'''
->>>>>>> 0a49a90a7b705400d13611fb2bb19a519d789669
 
 def usage():
     print 'usage: ' + sys.argv[0] + '-d dictionary-file -p postings-file -q query-file -o out-file'
