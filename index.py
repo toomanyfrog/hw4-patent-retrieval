@@ -30,7 +30,7 @@ stemmer = PorterStemmer()
 # Pre-condition : patsnap corpus
 # Post-condition: return dictionary.txt and postings.txt in gensim objects (Dictionary object and a matrix respectively)
 def build_gensim_index(directory_doc, dict_file, postings_file):
-	
+
 	patsnap_bow = []
 	temp_bow = []
 	title_tokens = []
@@ -42,7 +42,7 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 		root = tree.getroot()
 		for child in root:
 			temp_bow = []
-			
+
 			if child.attrib['name'] == 'Title':
 				title = child.text.strip().lower()
 				title_tokens = tokenize(title)
@@ -52,7 +52,7 @@ def build_gensim_index(directory_doc, dict_file, postings_file):
 				abstract = child.text.strip().lower()
 				abstract_tokens = tokenize(abstract)
 				abstract_tokens = [stemmer.stem(token) for token in abstract_tokens if token not in stop_list]
-			
+
 			temp_bow = title_tokens + abstract_tokens
 
 		patsnap_bow.append(temp_bow)
@@ -81,8 +81,8 @@ def build_patsnap_filename_list(directory_doc):
 # Post-condition: return dictionary.txt, postings.txt in the above format and ipc_subclass.txt
 def build_index(directory_doc, dict_file, postings_file):
 
-	dictionary_title = {}
-	dictionary_abstract = {}
+	# dictionary_title = {}
+	# dictionary_abstract = {}
 
 	ipc_subclass_file = open('ipc_subclass.txt', 'w')
 
@@ -92,13 +92,13 @@ def build_index(directory_doc, dict_file, postings_file):
 		root = tree.getroot()
 		for child in root:
 
-			if child.attrib['name'] == 'Title':
-				title = child.text.strip().lower()
-				dictionary_title.update(index_title(filename, title, dictionary_title))
-
-			if child.attrib['name'] == 'Abstract':
-				abstract = child.text.strip().lower()
-				dictionary_abstract.update(index_abstract(filename, abstract, dictionary_abstract))
+			# if child.attrib['name'] == 'Title':
+			# 	title = child.text.strip().lower()
+			# 	dictionary_title.update(index_title(filename, title, dictionary_title))
+            #
+			# if child.attrib['name'] == 'Abstract':
+			# 	abstract = child.text.strip().lower()
+			# 	dictionary_abstract.update(index_abstract(filename, abstract, dictionary_abstract))
 
 			if child.attrib['name'] == 'IPC Subclass':
 				ipc_sc = nltk.word_tokenize(child.text)
@@ -107,34 +107,34 @@ def build_index(directory_doc, dict_file, postings_file):
 				filename = filename.replace('.xml', '')
 				ipc_subclass_file.write(filename + ' ' + ipc_sc + '\n')
 
-		print filename
-
-	p = open(postings_file, 'w')
-	d = open(dict_file, 'w')
-
-	for word in dictionary_title:
-		try:
-			doc_freq = len(dictionary_title[word])
-			d.write(word + '.title ' + str(doc_freq) + ' \n')
-		except UnicodeEncodeError:
-			continue
-		for filename in dictionary_title[word]:
-			term_freq = dictionary_title[word][filename]
-			p.write(filename + ',' + str(term_freq) + ' ')
-		p.write('\n')
-	print 'titles written'
-
-	for word in dictionary_abstract:
-		try:
-			doc_freq = len(dictionary_abstract[word])
-			d.write(word + '.abstract ' + str(doc_freq) + ' \n')
-		except UnicodeEncodeError:
-			continue
-		for filename in dictionary_abstract[word]:
-			term_freq = dictionary_abstract[word][filename]
-			p.write(filename + ',' + str(term_freq) + ' ')
-		p.write('\n')
-	print 'abstracts written'
+	# 	print filename
+    #
+	# p = open(postings_file, 'w')
+	# d = open(dict_file, 'w')
+    #
+	# for word in dictionary_title:
+	# 	try:
+	# 		doc_freq = len(dictionary_title[word])
+	# 		d.write(word + '.title ' + str(doc_freq) + ' \n')
+	# 	except UnicodeEncodeError:
+	# 		continue
+	# 	for filename in dictionary_title[word]:
+	# 		term_freq = dictionary_title[word][filename]
+	# 		p.write(filename + ',' + str(term_freq) + ' ')
+	# 	p.write('\n')
+	# print 'titles written'
+    #
+	# for word in dictionary_abstract:
+	# 	try:
+	# 		doc_freq = len(dictionary_abstract[word])
+	# 		d.write(word + '.abstract ' + str(doc_freq) + ' \n')
+	# 	except UnicodeEncodeError:
+	# 		continue
+	# 	for filename in dictionary_abstract[word]:
+	# 		term_freq = dictionary_abstract[word][filename]
+	# 		p.write(filename + ',' + str(term_freq) + ' ')
+	# 	p.write('\n')
+	# print 'abstracts written'
 
 # This function does the indexing for title tag in the patsnap xml file
 # Pre-condition : The current filename, string of words from title tag and a dictionary for titles
@@ -218,7 +218,8 @@ for o, a in opts:
 if directory_doc == None or dict_file == None or postings_file == None:
 	usage()
 	sys.exit(2)
-	
+
 
 build_gensim_index(directory_doc, dict_file, postings_file)
+build_index(directory_doc, dict_file, postings_file)
 build_patsnap_filename_list(directory_doc)
