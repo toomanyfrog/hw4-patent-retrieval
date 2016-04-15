@@ -56,18 +56,25 @@ def main():
 
 
 def process_query(query_file):
+
+    # Parse query.xml
     tree = ET.parse(query_file)
     root = tree.getroot()
     q_title = stem_and_tokenize(root[0].text.strip().lower())
     q_description = stem_and_tokenize(root[1].text.strip().lower())
     words = q_title + q_description
+
+    # Retrieve the similarity vector for all documents
     ranked_index = rank_lsi(words, to_tdfidf)
     ranked_list = []
+
+    # Add the items from the IPC subclass that appears the most in the top n results
     for item in ranked_index[0]:
         ranked_list.append(patent_list[item[0]])
     subclass_items = subclass_to_docs[get_top_subclass(ranked_list)]
     final = filter(lambda x: x[1] > chosen_threshold or patent_list[x[0]] in subclass_items, ranked_index[1])
-    print final
+
+    # Sort by similarity again and return
     return sorted(final, key=lambda x: -x[1])
 
 
